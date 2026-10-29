@@ -28,50 +28,50 @@ This project integrates physics-informed machine learning, hierarchical failure 
 ```
                                     +-----------------------------------------+
                                     |        Industrial Telemetry Stream      |
-                                    |   (Air/Process Temp, RPM, Torque, Wear) |[cite: 2]
+                                    |   (Air/Process Temp, RPM, Torque, Wear) |
                                     +-----------------------------------------+
                                                          |
                                                          v
                                     +-----------------------------------------+
                                     |         Async Stream Producer           |
-                                    |        (simulator/stream_producer.py)   |[cite: 2]
+                                    |        (simulator/stream_producer.py)   |
                                     +-----------------------------------------+
                                                          |  HTTP POST /ingest
                                                          v
 +-----------------------------------------------------------------------------------------------------------------+
-|                                              FastAPI Backend Engine (api/main.py)                               |[cite: 2]
+|                                              FastAPI Backend Engine (api/main.py)                               |
 |                                                                                                                 |
 |  1. Physics-Informed Feature Engineering:                                                                       |
-|     - Thermal Delta: ΔT = T_proc - T_air                                                                        |[cite: 2]
-|     - Mechanical Power: P = Torque × ω = Torque × (2π × RPM / 60)                                               |[cite: 2]
-|     - Tool Overstrain: Overstrain = Tool wear × Torque                                                          |[cite: 2]
+|     - Thermal Delta: ΔT = T_proc - T_air                                                                        |
+|     - Mechanical Power: P = Torque × ω = Torque × (2π × RPM / 60)                                               |
+|     - Tool Overstrain: Overstrain = Tool wear × Torque                                                          |
 |                                                                                                                 |
-|  2. Preprocessing & Scaling: Fitted ColumnTransformer (StandardScaler + OneHotEncoder)                         |
+|  2. Preprocessing & Scaling: Fitted ColumnTransformer (StandardScaler + OneHotEncoder)                          |
 |                                                                                                                 |
 |  3. Hierarchical Two-Stage Inference:                                                                           |
 |     - Stage 1 Gatekeeper: XGBoost binary classifier (scale_pos_weight + tuned threshold)                        |
 |                           -> Output: Probability of machine failure                                             |
 |     - Stage 2 Diagnoser: XGBoost multi-class classifier (class-weighted, objective='multi:softprob')            |
 |                          -> Triggered only on Stage 1 alert                                                     |
-|                          -> Output: Diagnosed mode (TWF, HDF, PWF, OSF, RNF)[cite: 1, 2]                       |
+|                          -> Output: Diagnosed mode (TWF, HDF, PWF, OSF, RNF)                                    |
 |                                                                                                                 |
 |  4. Statistical Drift Monitoring:                                                                               |
-|     - 2-Sample Kolmogorov-Smirnov Test (p-value thresholding)[cite: 1, 2]                                      |
-|     - Population Stability Index (PSI across 10 quantile bins)[cite: 1, 2]                                     |
+|     - 2-Sample Kolmogorov-Smirnov Test (p-value thresholding)                                                   |
+|     - Population Stability Index (PSI across 10 quantile bins)                                                  |
 |                                                                                                                 |
 |  5. SHAP Real-Time Attribution:                                                                                 |
-|     - TreeExplainer local contributions -> Synthesized Operator Risk Flag[cite: 1, 2]                          |
+|     - TreeExplainer local contributions -> Synthesized Operator Risk Flag                                       |
 +-----------------------------------------------------------------------------------------------------------------+
                                         |                                        |
                    GET /state (Polling) |                                        | Streaming Metrics
                                         v                                        v
 +-----------------------------------------------------------------------------------------------------------------+
-|                                     Streamlit Operations Dashboard (dashboard/app.py)                           |[cite: 2]
+|                                     Streamlit Operations Dashboard (dashboard/app.py)                           |
 |                                                                                                                 |
-|  * Real-Time Machine Telemetry & Power Gauge Cards                                                              |[cite: 2]
+|  * Real-Time Machine Telemetry & Power Gauge Cards                                                              |
 |  * Dynamic Failure Probability Trend Line                                                                       |
-|  * Live SHAP Local Feature Attribution Horizontal Bar Chart[cite: 1, 2]                                        |
-|  * Color-Coded Distributional Drift Table (KS p-values, PSI values, Drift Status)[cite: 1, 2]                  |
+|  * Live SHAP Local Feature Attribution Horizontal Bar Chart                                                     |
+|  * Color-Coded Distributional Drift Table (KS p-values, PSI values, Drift Status)                               |
 |  * Real-Time Synthetic Sensor Drift Injection Toggle (Demo Mode)                                                |
 +-----------------------------------------------------------------------------------------------------------------+
 
@@ -193,21 +193,21 @@ Every sensor reading passed through the inference pipeline is processed by `shap
 
 ```text
 predictive-maintenance/
-├── ai4i2020.csv                                 # Raw AI4I 2020 dataset[cite: 2]
+├── ai4i2020.csv                                 # Raw AI4I 2020 dataset
 ├── two_stage_predictive_maintenance_bundle.pkl  # Serialized models, encoders, and threshold
 ├── reference_baseline.pkl                       # Training feature distribution for drift detection
 ├── test_stream.csv                              # Holdout test stream partition
 ├── export_reference.py                          # Setup script to generate baselines
-├── requirements.txt                             # Python dependencies[cite: 2]
+├── requirements.txt                             # Python dependencies
 ├── src/
-│   ├── drift.py                                 # KS-test & 10-bin PSI calculation engine[cite: 1, 2]
-│   └── explain.py                               # Real-time SHAP explainer & operator risk generator[cite: 1, 2]
+│   ├── drift.py                                 # KS-test & 10-bin PSI calculation engine
+│   └── explain.py                               # Real-time SHAP explainer & operator risk generator
 ├── api/
-│   └── main.py                                  # FastAPI ingestion & inference service[cite: 2]
+│   └── main.py                                  # FastAPI ingestion & inference service
 ├── simulator/
-│   └── stream_producer.py                       # Real-time PLC sensor stream generator[cite: 2]
+│   └── stream_producer.py                       # Real-time PLC sensor stream generator
 └── dashboard/
-    └── app.py                                   # Streamlit real-time monitoring dashboard[cite: 1, 2]
+    └── app.py                                   # Streamlit real-time monitoring dashboard
 
 ```
 
